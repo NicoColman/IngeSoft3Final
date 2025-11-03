@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ master, main ]
 
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || 'nicocolman3' }}
+  RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+  PROD_BASE_URL: ${{ secrets.PROD_BASE_URL }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -36,7 +41,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push backend image
@@ -44,27 +49,26 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME || 'nicocolman3' }}/ingsoft3-backend:latest,${{ secrets.DOCKERHUB_USERNAME || 'nicocolman3' }}/ingsoft3-backend:${{ github.sha }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/ingsoft3-backend:latest,${{ env.DOCKERHUB_USERNAME }}/ingsoft3-backend:${{ github.sha }}
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME || 'nicocolman3' }}/ingsoft3-frontend:latest,${{ secrets.DOCKERHUB_USERNAME || 'nicocolman3' }}/ingsoft3-frontend:${{ github.sha }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/ingsoft3-frontend:latest,${{ env.DOCKERHUB_USERNAME }}/ingsoft3-frontend:${{ github.sha }}
 
   deploy:
     needs: docker
-    if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render deploy
+        if: ${{ env.RENDER_DEPLOY_HOOK }}
         run: |
           curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
 
   e2e:
     needs: deploy
-    if: ${{ secrets.PROD_BASE_URL != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -77,8 +81,9 @@ jobs:
         run: npm ci
       - name: Run e2e tests
         working-directory: e2e
+        if: ${{ env.PROD_BASE_URL }}
         env:
-          BASE_URL: ${{ secrets.PROD_BASE_URL }}
+          BASE_URL: ${{ env.PROD_BASE_URL }}
         run: npm test
 
 
