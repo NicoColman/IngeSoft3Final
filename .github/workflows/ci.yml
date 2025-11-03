@@ -27,6 +27,7 @@ jobs:
         working-directory: backend
         run: |
           npm install
+          npm rebuild better-sqlite3 || true
           npm test
 
       - name: Install & test frontend
