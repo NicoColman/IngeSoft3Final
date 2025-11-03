@@ -7,9 +7,14 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine
+RUN apk add --no-cache gettext
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Template -> actual conf via entrypoint
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENV BACKEND_ORIGIN=http://backend:3001
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/entrypoint.sh"]
 
 
