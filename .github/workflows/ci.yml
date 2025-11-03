@@ -10,6 +10,8 @@ env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || 'nicocolman3' }}
   RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
   PROD_BASE_URL: ${{ secrets.PROD_BASE_URL }}
+  RENDER_DEPLOY_HOOK_BACKEND: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+  RENDER_DEPLOY_HOOK_FRONTEND: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
 
 jobs:
   test:
@@ -24,13 +26,13 @@ jobs:
       - name: Install & test backend
         working-directory: backend
         run: |
-          npm ci
+          npm install
           npm test
 
       - name: Install & test frontend
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run test
 
   docker:
@@ -62,10 +64,20 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Render deploy
+      - name: Trigger Render deploy (single hook)
         if: ${{ env.RENDER_DEPLOY_HOOK }}
         run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          curl -X POST "${{ env.RENDER_DEPLOY_HOOK }}"
+
+      - name: Trigger Render deploy (backend)
+        if: ${{ env.RENDER_DEPLOY_HOOK_BACKEND }}
+        run: |
+          curl -X POST "${{ env.RENDER_DEPLOY_HOOK_BACKEND }}"
+
+      - name: Trigger Render deploy (frontend)
+        if: ${{ env.RENDER_DEPLOY_HOOK_FRONTEND }}
+        run: |
+          curl -X POST "${{ env.RENDER_DEPLOY_HOOK_FRONTEND }}"
 
   e2e:
     needs: deploy
