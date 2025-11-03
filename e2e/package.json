@@ -1,0 +1,14 @@
+{
+  "name": "e2e",
+  "private": true,
+  "scripts": {
+    "test": "codeceptjs run --plugins allure"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "codeceptjs": "^3.6.8",
+    "playwright": "^1.49.1"
+  }
+}
+
+

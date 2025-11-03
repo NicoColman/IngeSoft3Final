@@ -1,0 +1,21 @@
+version: '3.9'
+services:
+  backend:
+    build: ./backend
+    environment:
+      - PORT=3001
+      - SQLITE_PATH=/data/data.db
+    volumes:
+      - backend_data:/data
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend_data: {}
+
+
