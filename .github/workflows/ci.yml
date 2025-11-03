@@ -91,7 +91,7 @@ jobs:
           node-version: 20
       - name: Install e2e deps
         working-directory: e2e
-        run: npm ci
+        run: npm install
       - name: Run e2e tests
         working-directory: e2e
         if: ${{ env.PROD_BASE_URL }}
