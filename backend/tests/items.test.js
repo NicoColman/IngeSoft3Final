@@ -1,38 +1,71 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
+const { getPool, query } = require('../src/db');
 
-process.env.SQLITE_PATH = path.join(__dirname, '..', 'test.db');
+// Use test database
+process.env.DB_HOST = process.env.DB_HOST || 'localhost';
+process.env.DB_PORT = process.env.DB_PORT || 5432;
+process.env.DB_NAME = process.env.DB_NAME || 'ingsoft3_test';
+process.env.DB_USER = process.env.DB_USER || 'postgres';
+process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'postgres';
 
 let app;
 
-beforeAll(() => {
-  // Ensure fresh test DB
-  if (fs.existsSync(process.env.SQLITE_PATH)) fs.unlinkSync(process.env.SQLITE_PATH);
+beforeAll(async () => {
+  // Clean test table
+  const pool = getPool();
+  try {
+    await query('DROP TABLE IF EXISTS items');
+    await query(`
+      CREATE TABLE items (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL
+      )
+    `);
+  } catch (err) {
+    console.error('Test DB setup error:', err);
+  }
   app = require('../src/server');
 });
 
-afterAll(() => {
-  if (fs.existsSync(process.env.SQLITE_PATH)) fs.unlinkSync(process.env.SQLITE_PATH);
+afterAll(async () => {
+  // Clean up
+  const pool = getPool();
+  try {
+    await query('DROP TABLE IF EXISTS items');
+    await pool.end();
+  } catch (err) {
+    console.error('Test cleanup error:', err);
+  }
+});
+
+beforeEach(async () => {
+  // Clean table before each test
+  await query('DELETE FROM items');
 });
 
 test('health check', async () => {
   const res = await request(app).get('/api/health');
   expect(res.status).toBe(200);
   expect(res.body.status).toBe('ok');
-});
+}, 10000);
 
 test('CRUD items', async () => {
   const create = await request(app).post('/api/items').send({ name: 'First' });
   expect(create.status).toBe(201);
   expect(create.body.name).toBe('First');
+  expect(create.body.id).toBeDefined();
 
   const list = await request(app).get('/api/items');
   expect(list.status).toBe(200);
   expect(list.body.length).toBe(1);
+  expect(list.body[0].name).toBe('First');
 
   const del = await request(app).delete(`/api/items/${create.body.id}`);
   expect(del.status).toBe(204);
-});
+
+  const listAfter = await request(app).get('/api/items');
+  expect(listAfter.status).toBe(200);
+  expect(listAfter.body.length).toBe(0);
+}, 10000);
 
 

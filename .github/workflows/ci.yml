@@ -16,6 +16,21 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: ingsoft3_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20
@@ -25,9 +40,14 @@ jobs:
 
       - name: Install & test backend
         working-directory: backend
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: ingsoft3_test
+          DB_USER: postgres
+          DB_PASSWORD: postgres
         run: |
           npm install
-          npm rebuild better-sqlite3 || true
           npm test
 
       - name: Install & test frontend

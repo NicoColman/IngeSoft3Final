@@ -1,16 +1,25 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const { Pool } = require('pg');
 
-let dbInstance;
+let poolInstance;
 
-function getDb() {
-  if (!dbInstance) {
-    const dbPath = process.env.SQLITE_PATH || path.join(__dirname, '..', 'data.db');
-    dbInstance = new Database(dbPath);
+function getPool() {
+  if (!poolInstance) {
+    poolInstance = new Pool({
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      database: process.env.DB_NAME || 'ingsoft3',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+    });
   }
-  return dbInstance;
+  return poolInstance;
 }
 
-module.exports = { getDb };
+async function query(text, params) {
+  const pool = getPool();
+  return pool.query(text, params);
+}
+
+module.exports = { getPool, query };
 
 

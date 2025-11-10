@@ -1,38 +1,46 @@
 ## Proyecto Integrador - Frontend + Backend + CI/CD
 
 ### Tecnologías
-- Backend: Node.js (Express) + SQLite (better-sqlite3)
+- Backend: Node.js (Express) + PostgreSQL
 - Frontend: React (Vite)
+- Base de datos: PostgreSQL 16
 - Pruebas: Jest (backend), Vitest (frontend), CodeceptJS + Playwright (e2e)
-- Docker: Dockerfiles para frontend y backend, docker-compose para local
+- Docker: Dockerfiles para frontend, backend y servicio de PostgreSQL, docker-compose para local
 - CI/CD: GitHub Actions (build, test, build&push Docker, deploy hook opcional)
 
 ### Desarrollo local
-1) Requisitos: Node >= 20, Docker
+1) Requisitos: Node >= 20, Docker, PostgreSQL (o usar Docker Compose)
    - Recomendado: `nvm install 20 && nvm use` (hay archivo `.nvmrc`)
-2) Backend
-```
-cd backend
-npm ci
-npm run dev
-```
-3) Frontend (dev con proxy a backend)
-```
-cd frontend
-npm ci
-npm run dev
-```
-4) Todo con Docker
+
+2) Todo con Docker Compose (recomendado)
 ```
 docker compose up --build
 Frontend -> http://localhost:5173
 Backend  -> http://localhost:3001/api/health
+PostgreSQL -> localhost:5432
 ```
+Los servicios se conectan automáticamente a través de la red de Docker.
+
+3) Desarrollo local sin Docker
+   - Instalar PostgreSQL localmente
+   - Backend:
+     ```
+     cd backend
+     npm install
+     # Setear variables de entorno (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
+     npm run dev
+     ```
+   - Frontend:
+     ```
+     cd frontend
+     npm install
+     npm run dev
+     ```
 
 ### Pruebas
-- Backend: `cd backend && npm test`
+- Backend: Requiere PostgreSQL corriendo. Con Docker Compose: `docker compose up -d database` y luego `cd backend && npm test`
 - Frontend: `cd frontend && npm run test`
-- E2E (local): `cd e2e && npm ci && BASE_URL=http://localhost:5173 npm test`
+- E2E (local): Requiere servicios corriendo. Con Docker Compose: `docker compose up` y luego `cd e2e && npm install && BASE_URL=http://localhost:5173 npm test`
 
 ### CI/CD
 Configurar Secrets en el repo:
@@ -49,25 +57,53 @@ Cada push a `main`/`master`:
 3) (Opcional) Dispara deploy vía webhook
 4) (Opcional) Corre e2e contra producción
 
-### Despliegue en Render (usando imágenes de Docker Hub)
-1) Backend (Web Service)
-   - Crear servicio de tipo Web Service
-   - Fuente: Docker Registry (Docker Hub)
+### Despliegue en Render
+
+#### Opción 1: Desde GitHub (Recomendado)
+1) **Base de datos PostgreSQL** (PostgreSQL Service)
+   - Crear servicio PostgreSQL en Render
+   - Versión: PostgreSQL 16
+   - Guardar las credenciales (host, port, database, user, password)
+
+2) **Backend** (Web Service desde GitHub)
+   - Crear Web Service desde repositorio GitHub
+   - Root Directory: `backend`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+   - Env Vars:
+     - `PORT=3001`
+     - `DB_HOST=<host-de-postgres>`
+     - `DB_PORT=5432`
+     - `DB_NAME=<nombre-de-db>`
+     - `DB_USER=<usuario>`
+     - `DB_PASSWORD=<password>`
+   - Activar Deploy Hook y guardar URL en GitHub Secret `RENDER_DEPLOY_HOOK_BACKEND`
+
+3) **Frontend** (Static Site desde GitHub)
+   - Crear Static Site desde repositorio GitHub
+   - Root Directory: `frontend`
+   - Build Command: `npm install && npm run build`
+   - Publish Directory: `dist`
+   - Redirects/Rewrites:
+     - Source: `/api/*`
+     - Destination: `https://<tu-backend>.onrender.com/api/$1`
+     - Action: `Rewrite`
+   - Source: `/*`
+   - Destination: `/index.html`
+   - Action: `Rewrite`
+   - Activar Deploy Hook y guardar URL en GitHub Secret `RENDER_DEPLOY_HOOK_FRONTEND`
+
+#### Opción 2: Desde Docker Hub
+1) **Base de datos PostgreSQL** (igual que arriba)
+2) **Backend** (Web Service desde Docker Registry)
    - Imagen: `nicocolman3/ingsoft3-backend:latest`
    - Port: 3001
-   - Env Vars: `PORT=3001`, `SQLITE_PATH=/data/data.db`
-   - Disk persistente: montar `/data` (p. ej. 1GB)
+   - Env Vars: igual que arriba
+3) **Frontend** (Static Site desde GitHub o Web Service desde Docker)
+   - Si usás Static Site, configuración igual que arriba
+   - Si usás Web Service con Docker, usar imagen `nicocolman3/ingsoft3-frontend:latest` y env var `BACKEND_ORIGIN`
 
-2) Frontend (Web Service)
-   - Crear servicio Web Service
-   - Docker Registry: `nicocolman3/ingsoft3-frontend:latest`
-   - Port interno: 80
-
-3) Deploy Hook
-   - En Backend y/o Frontend, activar Deploy Hook y copiar la URL
-   - Guardar la(s) URL(s) en GitHub Secret `RENDER_DEPLOY_HOOK` (si usás dos, podés usar un servicio intermedio o concatenar dos steps similares en el workflow)
-
-4) E2E contra Producción
+4) **E2E contra Producción**
    - Setear `PROD_BASE_URL` al dominio público del Frontend en Render
 
 

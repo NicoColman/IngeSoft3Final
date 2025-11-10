@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { getDb } = require('./db');
+const { getPool, query } = require('./db');
 
 const app = express();
 app.use(cors());
@@ -10,36 +10,77 @@ app.use(express.json());
 const PORT = process.env.PORT || 3001;
 
 // Ensure table exists
-const db = getDb();
-db.prepare(
-  'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)'
-).run();
+async function initDb() {
+  const maxRetries = 10;
+  const retryDelay = 2000; // 2 seconds
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' });
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      await query(`
+        CREATE TABLE IF NOT EXISTS items (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL
+        )
+      `);
+      console.log('Database initialized successfully');
+      return;
+    } catch (err) {
+      if (i === maxRetries - 1) {
+        console.error('Error initializing database after retries:', err);
+        throw err;
+      }
+      console.log(`Database connection attempt ${i + 1} failed, retrying...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+  }
+}
+
+initDb().catch(err => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
 });
 
-app.get('/api/items', (_req, res) => {
-  const rows = db.prepare('SELECT id, name FROM items ORDER BY id DESC').all();
-  res.json(rows);
+app.get('/api/health', async (_req, res) => {
+  try {
+    await query('SELECT 1');
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
 });
 
-app.post('/api/items', (req, res) => {
+app.get('/api/items', async (_req, res) => {
+  try {
+    const result = await query('SELECT id, name FROM items ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/items', async (req, res) => {
   const { name } = req.body || {};
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ error: 'name is required' });
   }
-  const info = db.prepare('INSERT INTO items (name) VALUES (?)').run(name);
-  const item = db.prepare('SELECT id, name FROM items WHERE id = ?').get(info.lastInsertRowid);
-  res.status(201).json(item);
+  try {
+    const result = await query('INSERT INTO items (name) VALUES ($1) RETURNING id, name', [name]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.delete('/api/items/:id', (req, res) => {
+app.delete('/api/items/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isFinite(id)) return res.status(400).json({ error: 'invalid id' });
-  const info = db.prepare('DELETE FROM items WHERE id = ?').run(id);
-  if (info.changes === 0) return res.status(404).json({ error: 'not found' });
-  res.status(204).end();
+  try {
+    const result = await query('DELETE FROM items WHERE id = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'not found' });
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 if (require.main === module) {
