@@ -6,11 +6,7 @@ RUN npm install --omit=dev
 COPY src ./src
 EXPOSE 3001
 ENV PORT=3001
-ENV DB_HOST=database
-ENV DB_PORT=5432
-ENV DB_NAME=ingsoft3
-ENV DB_USER=postgres
-ENV DB_PASSWORD=postgres
+# DB_* variables should be set at runtime (via docker-compose or Render environment variables)
 CMD ["node", "src/server.js"]
 
 

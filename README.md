@@ -63,20 +63,26 @@ Cada push a `main`/`master`:
 1) **Base de datos PostgreSQL** (PostgreSQL Service)
    - Crear servicio PostgreSQL en Render
    - Versión: PostgreSQL 16
-   - Guardar las credenciales (host, port, database, user, password)
+   - **IMPORTANTE**: Anotar las credenciales que Render te da:
+     - `Host`: algo como `dpg-xxxxx-a.oregon-postgres.render.com`
+     - `Port`: `5432`
+     - `Database`: el nombre que elegiste (p. ej. `ingsoft3_xxxx`)
+     - `User`: el usuario (p. ej. `ingsoft3_user`)
+     - `Password`: la contraseña generada por Render
+   - También podés encontrar estas credenciales en el dashboard del servicio PostgreSQL bajo "Connections"
 
 2) **Backend** (Web Service desde GitHub)
    - Crear Web Service desde repositorio GitHub
    - Root Directory: `backend`
    - Build Command: `npm install`
    - Start Command: `npm start`
-   - Env Vars:
+   - **Env Vars** (usar los valores del paso 1):
      - `PORT=3001`
-     - `DB_HOST=<host-de-postgres>`
+     - `DB_HOST=<host-de-postgres>` (ej: `dpg-xxxxx-a.oregon-postgres.render.com`)
      - `DB_PORT=5432`
-     - `DB_NAME=<nombre-de-db>`
-     - `DB_USER=<usuario>`
-     - `DB_PASSWORD=<password>`
+     - `DB_NAME=<nombre-de-db>` (ej: `ingsoft3_xxxx`)
+     - `DB_USER=<usuario>` (ej: `ingsoft3_user`)
+     - `DB_PASSWORD=<password>` (la contraseña de Render)
    - Activar Deploy Hook y guardar URL en GitHub Secret `RENDER_DEPLOY_HOOK_BACKEND`
 
 3) **Frontend** (Static Site desde GitHub)
@@ -94,11 +100,20 @@ Cada push a `main`/`master`:
    - Activar Deploy Hook y guardar URL en GitHub Secret `RENDER_DEPLOY_HOOK_FRONTEND`
 
 #### Opción 2: Desde Docker Hub
-1) **Base de datos PostgreSQL** (igual que arriba)
+1) **Base de datos PostgreSQL** (igual que arriba - crear servicio PostgreSQL en Render primero)
 2) **Backend** (Web Service desde Docker Registry)
+   - Crear Web Service
+   - Docker Registry: Docker Hub
    - Imagen: `nicocolman3/ingsoft3-backend:latest`
    - Port: 3001
-   - Env Vars: igual que arriba
+   - **Env Vars** (usar los valores del servicio PostgreSQL de Render):
+     - `PORT=3001`
+     - `DB_HOST=<host-de-postgres>` (el hostname que Render te da, NO usar `database`)
+     - `DB_PORT=5432`
+     - `DB_NAME=<nombre-de-db>`
+     - `DB_USER=<usuario>`
+     - `DB_PASSWORD=<password>`
+   - **NOTA**: No usar `DB_HOST=database` porque en Render cada servicio tiene su propio hostname
 3) **Frontend** (Static Site desde GitHub o Web Service desde Docker)
    - Si usás Static Site, configuración igual que arriba
    - Si usás Web Service con Docker, usar imagen `nicocolman3/ingsoft3-frontend:latest` y env var `BACKEND_ORIGIN`
