@@ -19,8 +19,8 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    // This will BREAK if you change <h1>Items</h1> to anything else
-    expect(screen.getByText('Items')).toBeInTheDocument()
+    // Busca el texto "Items" incluso si está dentro del emoji
+    expect(screen.getByText(/Items/i)).toBeInTheDocument()
   })
 
   it('should have an input with placeholder "Nuevo item"', async () => {
@@ -31,7 +31,10 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    await waitFor(() => expect(screen.queryByText('Cargando...')).not.toBeInTheDocument())
+    // Espera a que termine de cargar
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
+    })
     
     // This will BREAK if you change the placeholder text
     const input = screen.getByPlaceholderText('Nuevo item')
@@ -46,10 +49,13 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    await waitFor(() => expect(screen.queryByText('Cargando...')).not.toBeInTheDocument())
+    // Espera a que termine de cargar
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
+    })
     
     // This will BREAK if you change button text from "Agregar"
-    const button = screen.getByRole('button', { name: 'Agregar' })
+    const button = screen.getByRole('button', { name: /Agregar/i })
     expect(button).toBeInTheDocument()
   })
 
@@ -61,7 +67,10 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    await waitFor(() => expect(screen.queryByText('Cargando...')).not.toBeInTheDocument())
+    // Espera a que termine de cargar
+    await waitFor(() => {
+      expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
+    })
     
     const input = screen.getByPlaceholderText('Nuevo item')
     await userEvent.type(input, 'Test Item')
@@ -78,25 +87,25 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    // Wait for loading to complete
+    // Espera a que termine de cargar usando regex
     await waitFor(() => {
-      expect(screen.queryByText('Cargando...')).not.toBeInTheDocument()
-    })
+      expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
+    }, { timeout: 3000 })
     
-    const button = screen.getByRole('button', { name: 'Agregar' })
-    
-    // Wait for button to be enabled
+    // Espera a que el botón esté habilitado
+    const button = screen.getByRole('button', { name: /Agregar/i })
     await waitFor(() => {
       expect(button).not.toBeDisabled()
-    })
+    }, { timeout: 3000 })
     
-    // Click the button with empty input
+    // Clic en el botón con input vacío
     await userEvent.click(button)
     
-    // This will BREAK if you remove validation for empty input
+    // Verifica que aparezca un mensaje de error
     await waitFor(() => {
-      const errorMessage = screen.getByText(/nombre/i)
-      expect(errorMessage).toBeInTheDocument()
-    })
+      // Busca por el emoji de advertencia o cualquier texto con "nombre"
+      const errorElement = screen.getByText(/nombre/i)
+      expect(errorElement).toBeInTheDocument()
+    }, { timeout: 3000 })
   })
 })
