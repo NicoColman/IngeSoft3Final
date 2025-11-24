@@ -48,13 +48,25 @@ jobs:
           DB_PASSWORD: postgres
         run: |
           npm install
-          npm test
+          npm test -- --ci --reporters=default --reporters=jest-junit --outputFile=junit.xml
 
       - name: Install & test frontend
         working-directory: frontend
         run: |
           npm install
-          npm run test
+          npm run test -- --ci --reporters=default --reporters=jest-junit --outputFile=junit.xml
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            backend/junit.xml
+            frontend/junit.xml
+
+
+
 
   docker:
     needs: test
@@ -122,6 +134,32 @@ jobs:
         if: ${{ env.PROD_BASE_URL }}
         env:
           BASE_URL: ${{ env.PROD_BASE_URL }}
-        run: npm test
+        run: npx codeceptjs run --reporter mocha-junit-reporter --reporter-options mochaFile=e2e_result.xml
+      - name: Upload E2E Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: e2e/e2e_result.xml
+
+  report:
+    needs: [test, e2e]
+    if: always() # Correr siempre, aunque fallen los tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        with:
+          name: Reporte de Tests Completo
+          path: 'artifacts/**/*.xml'
+          reporter: jest-junit
 
 
