@@ -97,11 +97,6 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Render deploy (single hook)
-        if: ${{ env.RENDER_DEPLOY_HOOK }}
-        run: |
-          curl -X POST "${{ env.RENDER_DEPLOY_HOOK }}"
-
       - name: Trigger Render deploy (backend)
         if: ${{ env.RENDER_DEPLOY_HOOK_BACKEND }}
         run: |
