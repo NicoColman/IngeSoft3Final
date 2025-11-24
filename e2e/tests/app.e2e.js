@@ -1,9 +1,24 @@
 Feature('App');
 
-Scenario('Home renders and can type in input', async ({ I }) => {
+Scenario('Add and remove item', async ({ I }) => {
+  const itemName = 'Test Item ' + Date.now();
+
   I.amOnPage('/');
   I.see('Items');
-  I.fillField('Nuevo item', 'E2E');
+
+  // Add item
+  I.fillField('Nuevo item', itemName);
+  I.click('Agregar');
+
+  // Verify item exists
+  I.see(itemName);
+
+  // Delete item
+  // We find the delete button inside the list item that contains our item name
+  I.click('Eliminar', locate('li').withText(itemName));
+
+  // Verify item is gone
+  I.dontSee(itemName);
 });
 
 
