@@ -19,7 +19,6 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    // Busca el texto "Items" incluso si está dentro del emoji
     expect(screen.getByText(/Items/i)).toBeInTheDocument()
   })
 
@@ -31,12 +30,10 @@ describe('App Component - Simple Tests', () => {
     
     render(<App />)
     
-    // Espera a que termine de cargar
     await waitFor(() => {
       expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
     })
     
-    // This will BREAK if you change the placeholder text
     const input = screen.getByPlaceholderText('Nuevo item')
     expect(input).toBeInTheDocument()
   })
