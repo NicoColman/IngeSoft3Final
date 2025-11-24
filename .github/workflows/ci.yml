@@ -104,6 +104,8 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for deployment
+        run: sleep 60
       - uses: actions/checkout@v4
       - name: Use Node.js 20
         uses: actions/setup-node@v4

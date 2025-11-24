@@ -4,14 +4,14 @@ Scenario('Add and remove item', async ({ I }) => {
   const itemName = 'Test Item ' + Date.now();
 
   I.amOnPage('/');
-  I.see('Items');
+  I.waitForText('Items', 5);
 
   // Add item
   I.fillField('Nuevo item', itemName);
   I.click('Agregar');
 
   // Verify item exists
-  I.see(itemName);
+  I.waitForText(itemName, 5);
 
   // Delete item
   // We find the delete button inside the list item that contains our item name
@@ -20,5 +20,3 @@ Scenario('Add and remove item', async ({ I }) => {
   // Verify item is gone
   I.dontSee(itemName);
 });
-
-
