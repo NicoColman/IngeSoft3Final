@@ -142,24 +142,5 @@ jobs:
           name: e2e-test-results
           path: e2e/e2e_result.xml
 
-  report:
-    needs: [test, e2e]
-    if: always() # Correr siempre, aunque fallen los tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-
-      - name: Publish Test Report
-        uses: dorny/test-reporter@v1
-        with:
-          name: Reporte de Tests Completo
-          path: 'artifacts/**/*.xml'
-          reporter: jest-junit
 
 

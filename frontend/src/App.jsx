@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
+
 function App() {
   const [items, setItems] = useState([])
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
 
   async function load() {
     setLoading(true)
@@ -29,7 +31,9 @@ function App() {
     }
   }
 
+
   useEffect(() => { load() }, [])
+
 
   async function addItem(e) {
     e.preventDefault()
@@ -70,6 +74,7 @@ function App() {
     }
   }
 
+
   async function removeItem(id) {
     // Validate id exists and is valid
     if (!id || (typeof id !== 'string' && typeof id !== 'number')) {
@@ -99,10 +104,11 @@ function App() {
     }
   }
 
+
   return (
-    <div style={{ 
-      maxWidth: 520, 
-      margin: '40px auto', 
+    <div style={{
+      maxWidth: 520,
+      margin: '40px auto',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       padding: '0 20px'
     }}>
@@ -119,11 +125,12 @@ function App() {
           fontSize: '32px',
           fontWeight: '700',
           letterSpacing: '-0.5px'
-        }}>✨ Items</h1>
+        }}>Items</h1>
       </div>
 
-      <form onSubmit={addItem} style={{ 
-        display: 'flex', 
+
+      <form onSubmit={addItem} style={{
+        display: 'flex',
         gap: 12,
         marginBottom: '24px'
       }}>
@@ -131,22 +138,23 @@ function App() {
           placeholder="Nuevo item"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          style={{ 
-            flex: 1, 
+          style={{
+            flex: 1,
             padding: '14px 16px',
             border: '2px solid #e2e8f0',
             borderRadius: '12px',
             fontSize: '15px',
             outline: 'none',
             transition: 'all 0.2s',
-            backgroundColor: 'white'
+            backgroundColor: 'white',
+            color: '#2d3748' /* AGREGADO: Color de texto oscuro para asegurar visibilidad */
           }}
           maxLength={100}
           onFocus={(e) => e.target.style.borderColor = '#667eea'}
           onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
         />
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           style={{
             padding: '14px 24px',
@@ -171,6 +179,7 @@ function App() {
         </button>
       </form>
 
+
       {loading && (
         <div style={{
           padding: '16px',
@@ -180,12 +189,13 @@ function App() {
           color: '#718096',
           marginBottom: '16px'
         }}>
-          <span style={{ fontSize: '20px' }}>⏳</span> Cargando...
+          Cargando...
         </div>
       )}
 
+
       {error && (
-        <div style={{ 
+        <div style={{
           padding: '16px',
           backgroundColor: '#fed7d7',
           color: '#c53030',
@@ -194,7 +204,7 @@ function App() {
           border: '1px solid #fc8181',
           fontWeight: '500'
         }}>
-          ⚠️ {error}
+          {error}
         </div>
       )}
       
@@ -206,23 +216,22 @@ function App() {
           borderRadius: '12px',
           color: '#718096'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>📦</div>
           <p style={{ margin: 0, fontSize: '16px' }}>No hay items todavía</p>
         </div>
       )}
       
-      <ul style={{ 
-        listStyle: 'none', 
+      <ul style={{
+        listStyle: 'none',
         padding: 0,
         margin: 0
       }}>
         {items.map(it => (
-          <li 
-            key={it.id} 
-            style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
+          <li
+            key={it.id}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               padding: '16px 20px',
               backgroundColor: 'white',
               borderRadius: '12px',
@@ -247,8 +256,8 @@ function App() {
             }}>
               {it.name}
             </span>
-            <button 
-              onClick={() => removeItem(it.id)} 
+            <button
+              onClick={() => removeItem(it.id)}
               disabled={loading}
               style={{
                 padding: '8px 16px',
@@ -282,5 +291,6 @@ function App() {
     </div>
   )
 }
+
 
 export default App
