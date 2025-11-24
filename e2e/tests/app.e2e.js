@@ -28,7 +28,7 @@ Scenario('Add and remove item', async ({ I }) => {
   I.wait(2);
   I.click('Eliminar', locate('li').withText(itemName));
 
-
   // Verify item is gone
+  I.wait(3);
   I.dontSee(itemName);
 });
