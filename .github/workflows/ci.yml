@@ -48,7 +48,7 @@ jobs:
           DB_PASSWORD: postgres
         run: |
           npm install
-          npm test -- --ci --reporters=default --reporters=jest-junit --outputFile=junit.xml
+          npm test -- --ci
 
       - name: Install & test frontend
         working-directory: frontend
@@ -63,6 +63,7 @@ jobs:
           name: unit-test-results
           path: |
             backend/junit.xml
+            backend/test-report.html
             frontend/junit.xml
 
 
@@ -129,13 +130,13 @@ jobs:
         if: ${{ env.PROD_BASE_URL }}
         env:
           BASE_URL: ${{ env.PROD_BASE_URL }}
-        run: npx codeceptjs run --reporter mocha-junit-reporter --reporter-options mochaFile=e2e_result.xml
+        run: npx codeceptjs run
       - name: Upload E2E Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-test-results
-          path: e2e/e2e_result.xml
+          path: e2e/output/
 
 
 
