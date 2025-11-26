@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { getPool, query } = require('../src/db');
+const { app, getPool, query } = require('../src/server');
 
 // Use test database
 process.env.DB_HOST = process.env.DB_HOST || 'localhost';
@@ -7,8 +7,6 @@ process.env.DB_PORT = process.env.DB_PORT || 5432;
 process.env.DB_NAME = process.env.DB_NAME || 'ingsoft3_test';
 process.env.DB_USER = process.env.DB_USER || 'postgres';
 process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'postgres';
-
-let app;
 
 beforeAll(async () => {
   // Clean test table
@@ -24,7 +22,6 @@ beforeAll(async () => {
   } catch (err) {
     console.error('Test DB setup error:', err);
   }
-  app = require('../src/server');
 });
 
 afterAll(async () => {
