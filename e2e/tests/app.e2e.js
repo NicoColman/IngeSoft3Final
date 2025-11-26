@@ -7,14 +7,14 @@ Scenario('Add and remove item', async ({ I }) => {
 
   I.amOnPage('/');
 
-  I.wait(2); 
+  I.wait(2);
   I.waitForText('Items', 30);
 
 
   // Add item
   I.fillField('Nuevo item', itemName);
-  
-  I.wait(1); 
+
+  I.wait(1);
   I.click('Agregar');
 
   I.wait(3);

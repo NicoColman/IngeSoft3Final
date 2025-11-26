@@ -9,6 +9,15 @@ exports.config = {
     }
   },
   include: {},
+
+  mocha: {
+    reporter: 'mochawesome',
+    reporterOptions: {
+      reportDir: './output',
+      reportFilename: 'report',
+      reportTitle: 'E2E Test Report'
+    }
+  },
   name: 'e2e'
 }
 
