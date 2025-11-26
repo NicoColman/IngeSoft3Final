@@ -110,6 +110,20 @@ function App() {
     }
   }
 
+  async function clearAll() {
+    if (!confirm('¿Estás seguro de que quieres eliminar todos los items?')) return
+
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/items', { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to clear items')
+      await load()
+    } catch (e) {
+      setError('No se pudo vaciar la lista')
+      setLoading(false)
+    }
+  }
 
   const [searchQuery, setSearchQuery] = useState('')
   const [sortOrder, setSortOrder] = useState('newest')
@@ -365,6 +379,40 @@ function App() {
           </li>
         ))}
       </ul>
+
+      {items.length > 0 && (
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <button
+            onClick={clearAll}
+            disabled={loading}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: 'transparent',
+              color: '#e53e3e',
+              border: '1px solid #e53e3e',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.target.style.backgroundColor = '#e53e3e'
+                e.target.style.color = 'white'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.target.style.backgroundColor = 'transparent'
+                e.target.style.color = '#e53e3e'
+              }
+            }}
+          >
+            Eliminar todo
+          </button>
+        </div>
+      )}
     </div>
   )
 }
