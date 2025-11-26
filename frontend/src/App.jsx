@@ -16,12 +16,12 @@ function App() {
       const res = await fetch('/api/items')
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
-      
+
       // Validate that data is an array
       if (!Array.isArray(data)) {
         throw new Error('Invalid data format')
       }
-      
+
       setItems(data)
     } catch (e) {
       setError('No se pudo cargar la lista')
@@ -37,36 +37,36 @@ function App() {
 
   async function addItem(e) {
     e.preventDefault()
-    
+
     // Validate input
     if (!name || typeof name !== 'string') {
       setError('Nombre inválido')
       return
     }
-    
+
     if (!name.trim()) {
       setError('El nombre no puede estar vacío')
       return
     }
-    
+
     if (name.trim().length > 100) {
       setError('El nombre es demasiado largo (máximo 100 caracteres)')
       return
     }
-    
+
     setError('') // Clear previous errors
-    
+
     try {
       const res = await fetch('/api/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim() })
       })
-      
+
       if (!res.ok) {
         throw new Error('Failed to add item')
       }
-      
+
       setName('')
       await load()
     } catch (e) {
@@ -81,29 +81,39 @@ function App() {
       setError('ID inválido')
       return
     }
-    
+
     // Check if item exists in list
     const itemExists = items.find(item => item.id === id)
     if (!itemExists) {
       setError('El item no existe')
       return
     }
-    
+
     setError('') // Clear previous errors
-    
+
     try {
       const res = await fetch(`/api/items/${id}`, { method: 'DELETE' })
-      
+
       if (!res.ok) {
         throw new Error('Failed to delete item')
       }
-      
+
       await load()
     } catch (e) {
       setError('No se pudo eliminar el item')
     }
   }
 
+
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortOrder, setSortOrder] = useState('newest')
+
+  const filteredItems = items
+    .filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (sortOrder === 'newest') return b.id - a.id
+      return a.name.localeCompare(b.name)
+    })
 
   return (
     <div style={{
@@ -128,7 +138,6 @@ function App() {
         }}>Items</h1>
       </div>
 
-
       <form onSubmit={addItem} style={{
         display: 'flex',
         gap: 12,
@@ -147,7 +156,7 @@ function App() {
             outline: 'none',
             transition: 'all 0.2s',
             backgroundColor: 'white',
-            color: '#2d3748' /* AGREGADO: Color de texto oscuro para asegurar visibilidad */
+            color: '#2d3748'
           }}
           maxLength={100}
           onFocus={(e) => e.target.style.borderColor = '#667eea'}
@@ -179,6 +188,38 @@ function App() {
         </button>
       </form>
 
+      {/* Search and Sort Controls */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: '24px' }}>
+        <input
+          placeholder="🔍 Buscar..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            flex: 1,
+            padding: '10px 16px',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            fontSize: '14px',
+            outline: 'none'
+          }}
+        />
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+          style={{
+            padding: '10px 16px',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            fontSize: '14px',
+            outline: 'none',
+            backgroundColor: 'white',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="newest">Más recientes</option>
+          <option value="alphabetical">A-Z</option>
+        </select>
+      </div>
 
       {loading && (
         <div style={{
@@ -207,8 +248,8 @@ function App() {
           {error}
         </div>
       )}
-      
-      {!loading && items.length === 0 && !error && (
+
+      {!loading && filteredItems.length === 0 && !error && (
         <div style={{
           padding: '48px 24px',
           textAlign: 'center',
@@ -216,16 +257,18 @@ function App() {
           borderRadius: '12px',
           color: '#718096'
         }}>
-          <p style={{ margin: 0, fontSize: '16px' }}>No hay items todavía</p>
+          <p style={{ margin: 0, fontSize: '16px' }}>
+            {items.length === 0 ? 'No hay items todavía' : 'No se encontraron resultados'}
+          </p>
         </div>
       )}
-      
+
       <ul style={{
         listStyle: 'none',
         padding: 0,
         margin: 0
       }}>
-        {items.map(it => (
+        {filteredItems.map(it => (
           <li
             key={it.id}
             style={{
