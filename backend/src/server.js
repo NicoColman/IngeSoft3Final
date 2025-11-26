@@ -71,6 +71,15 @@ app.post('/api/items', async (req, res) => {
   }
 });
 
+app.delete('/api/items', async (_req, res) => {
+  try {
+    await query('DELETE FROM items');
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/items/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isFinite(id)) return res.status(400).json({ error: 'invalid id' });

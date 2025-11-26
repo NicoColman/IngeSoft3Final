@@ -68,4 +68,22 @@ test('CRUD items', async () => {
   expect(listAfter.body.length).toBe(0);
 }, 10000);
 
+test('Clear all items', async () => {
+  // Create two items
+  await request(app).post('/api/items').send({ name: 'Item 1' });
+  await request(app).post('/api/items').send({ name: 'Item 2' });
+
+  // Verify they exist
+  const listBefore = await request(app).get('/api/items');
+  expect(listBefore.body.length).toBe(2);
+
+  // Clear all
+  const clear = await request(app).delete('/api/items');
+  expect(clear.status).toBe(204);
+
+  // Verify empty
+  const listAfter = await request(app).get('/api/items');
+  expect(listAfter.body.length).toBe(0);
+}, 10000);
+
 
