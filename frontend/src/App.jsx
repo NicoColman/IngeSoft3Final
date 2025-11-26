@@ -54,6 +54,12 @@ function App() {
       return
     }
 
+    // Check for duplicates
+    if (items.some(item => item.name.toLowerCase() === name.trim().toLowerCase())) {
+      setError('El item ya existe')
+      return
+    }
+
     setError('') // Clear previous errors
 
     try {
@@ -127,7 +133,10 @@ function App() {
         padding: '32px',
         borderRadius: '16px',
         marginBottom: '24px',
-        boxShadow: '0 10px 40px rgba(102, 126, 234, 0.2)'
+        boxShadow: '0 10px 40px rgba(102, 126, 234, 0.2)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
       }}>
         <h1 style={{
           margin: 0,
@@ -136,32 +145,56 @@ function App() {
           fontWeight: '700',
           letterSpacing: '-0.5px'
         }}>Items</h1>
+        <span style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          padding: '4px 12px',
+          borderRadius: '20px',
+          fontSize: '14px',
+          fontWeight: '600'
+        }}>
+          {filteredItems.length} items
+        </span>
       </div>
 
       <form onSubmit={addItem} style={{
         display: 'flex',
         gap: 12,
-        marginBottom: '24px'
+        marginBottom: '8px' // Reduced margin to fit counter
       }}>
-        <input
-          placeholder="Nuevo item"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{
-            flex: 1,
-            padding: '14px 16px',
-            border: '2px solid #e2e8f0',
-            borderRadius: '12px',
-            fontSize: '15px',
-            outline: 'none',
-            transition: 'all 0.2s',
-            backgroundColor: 'white',
-            color: '#2d3748'
-          }}
-          maxLength={100}
-          onFocus={(e) => e.target.style.borderColor = '#667eea'}
-          onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-        />
+        <div style={{ flex: 1, position: 'relative' }}>
+          <input
+            placeholder="Nuevo item"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '14px 16px',
+              border: '2px solid #e2e8f0',
+              borderRadius: '12px',
+              fontSize: '15px',
+              outline: 'none',
+              transition: 'all 0.2s',
+              backgroundColor: 'white',
+              color: '#2d3748',
+              boxSizing: 'border-box'
+            }}
+            maxLength={100}
+            onFocus={(e) => e.target.style.borderColor = '#667eea'}
+            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+          />
+          <span style={{
+            position: 'absolute',
+            right: '12px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: '12px',
+            color: '#a0aec0',
+            pointerEvents: 'none'
+          }}>
+            {name.length}/100
+          </span>
+        </div>
         <button
           type="submit"
           disabled={loading}
@@ -187,6 +220,7 @@ function App() {
           Agregar
         </button>
       </form>
+      <div style={{ marginBottom: '24px' }}></div>
 
       {/* Search and Sort Controls */}
       <div style={{ display: 'flex', gap: 12, marginBottom: '24px' }}>

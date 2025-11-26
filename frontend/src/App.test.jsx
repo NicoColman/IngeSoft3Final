@@ -16,10 +16,10 @@ describe('App Component - Simple Tests', () => {
       ok: true,
       json: async () => []
     })
-    
+
     render(<App />)
-    
-    expect(screen.getByText(/Items/i)).toBeInTheDocument()
+
+    expect(screen.getByRole('heading', { name: /Items/i })).toBeInTheDocument()
   })
 
   it('should have an input with placeholder "Nuevo item"', async () => {
@@ -27,13 +27,13 @@ describe('App Component - Simple Tests', () => {
       ok: true,
       json: async () => []
     })
-    
+
     render(<App />)
-    
+
     await waitFor(() => {
       expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
     })
-    
+
     const input = screen.getByPlaceholderText('Nuevo item')
     expect(input).toBeInTheDocument()
   })
@@ -43,14 +43,14 @@ describe('App Component - Simple Tests', () => {
       ok: true,
       json: async () => []
     })
-    
+
     render(<App />)
-    
+
     // Espera a que termine de cargar
     await waitFor(() => {
       expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
     })
-    
+
     // This will BREAK if you change button text from "Agregar"
     const button = screen.getByRole('button', { name: /Agregar/i })
     expect(button).toBeInTheDocument()
@@ -61,17 +61,17 @@ describe('App Component - Simple Tests', () => {
       ok: true,
       json: async () => []
     })
-    
+
     render(<App />)
-    
+
     // Espera a que termine de cargar
     await waitFor(() => {
       expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
     })
-    
+
     const input = screen.getByPlaceholderText('Nuevo item')
     await userEvent.type(input, 'Test Item')
-    
+
     // This will BREAK if input doesn't work
     expect(input).toHaveValue('Test Item')
   })
@@ -81,23 +81,23 @@ describe('App Component - Simple Tests', () => {
       ok: true,
       json: async () => []
     })
-    
+
     render(<App />)
-    
+
     // Espera a que termine de cargar usando regex
     await waitFor(() => {
       expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
     }, { timeout: 3000 })
-    
+
     // Espera a que el botón esté habilitado
     const button = screen.getByRole('button', { name: /Agregar/i })
     await waitFor(() => {
       expect(button).not.toBeDisabled()
     }, { timeout: 3000 })
-    
+
     // Clic en el botón con input vacío
     await userEvent.click(button)
-    
+
     // Verifica que aparezca un mensaje de error
     await waitFor(() => {
       // Busca por el emoji de advertencia o cualquier texto con "nombre"
