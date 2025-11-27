@@ -32,7 +32,7 @@ Scenario('Buscar y Ordenar items', async ({ I }) => {
 
   I.fillField('Nuevo item', itemA);
   I.click('Agregar');
-  I.waitForText(itemA, 10); 
+  I.waitForText(itemA, 10);
 
   I.fillField('Nuevo item', itemB);
   I.click('Agregar');
@@ -52,18 +52,18 @@ Scenario('Buscar y Ordenar items', async ({ I }) => {
   I.wait(1);
   I.waitForText(itemB, 10);
 
-  I.selectOption('select', 'alphabetical'); 
+  I.selectOption('select', 'alphabetical');
   I.wait(1);
-  
+
   I.waitForText(itemA, 10);
   I.waitForText(itemB, 10);
   I.waitForText(itemC, 10);
 
   I.click('Eliminar', locate('li').withText(itemA));
-  I.waitForInvisible(locate('li').withText(itemA), 5); 
+  I.waitForInvisible(locate('li').withText(itemA), 5);
 
   I.click('Eliminar', locate('li').withText(itemB));
-  I.waitForInvisible(locate('li').withText(itemB), 5); 
+  I.waitForInvisible(locate('li').withText(itemB), 5);
 
   I.click('Eliminar', locate('li').withText(itemC));
   I.waitForInvisible(locate('li').withText(itemC), 5);
@@ -84,10 +84,10 @@ Scenario('Verificar contadores de items', async ({ I }) => {
   I.waitForText(item, 30);
 
   I.waitForText('items', 10);
-  
-  I.wait(1); 
+
+  I.wait(1);
   I.click('Eliminar', locate('li').withText(item));
-  
+
   I.waitForInvisible(locate('li').withText(item), 10);
 });
 
@@ -106,8 +106,39 @@ Scenario('Verificar persistencia', async ({ I }) => {
   I.waitForText('Items', 30);
 
   I.waitForText(item, 30);
-  
-  I.wait(1); 
+
+  I.wait(1);
   I.click('Eliminar', locate('li').withText(item));
   I.waitForInvisible(locate('li').withText(item), 10);
+});
+
+Scenario('Verificar validación de duplicados', async ({ I }) => {
+  const uniqueId = Date.now();
+  const item = 'Item Duplicado ' + uniqueId;
+
+  I.amOnPage('/');
+  I.waitForText('Items', 30);
+
+  I.fillField('Nuevo item', item);
+  I.click('Agregar');
+  I.waitForText(item, 30);
+
+  I.fillField('Nuevo item', item);
+  I.click('Agregar');
+
+  I.waitForText('El item ya existe', 10);
+
+  I.refreshPage();
+  I.wait(1);
+  I.click('Eliminar', locate('li').withText(item));
+  I.waitForInvisible(locate('li').withText(item), 10);
+});
+
+Scenario('Verificar validación de input vacío', async ({ I }) => {
+  I.amOnPage('/');
+  I.waitForText('Items', 30);
+
+  I.click('Agregar');
+
+  I.waitForText('El nombre no puede estar vacío', 10);
 });
