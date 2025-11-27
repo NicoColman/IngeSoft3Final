@@ -8,17 +8,16 @@ global.fetch = vi.fn()
 global.confirm = vi.fn()
 
 const mockItems = [
-  { id: 1, name: 'Apple' },
+  { id: 1, name: 'Manzana' },
   { id: 2, name: 'Banana' },
-  { id: 3, name: 'Cherry' }
+  { id: 3, name: 'Naranja' }
 ]
 
-describe('App Component', () => {
+describe('Componente App', () => {
   beforeEach(() => {
     fetch.mockReset()
     confirm.mockReset()
 
-    // Default fetch behavior: return items
     fetch.mockImplementation((url, options) => {
       if (url === '/api/items' && (!options || options.method === 'GET')) {
         return Promise.resolve({
@@ -30,150 +29,140 @@ describe('App Component', () => {
     })
   })
 
-  describe('Simple Tests', () => {
-    it('should render the title "Items"', async () => {
+  describe('Renderizado Inicial y Estructura', () => {
+    it('debería renderizar el título "Items"', async () => {
       render(<App />)
       expect(screen.getByRole('heading', { name: /Items/i })).toBeInTheDocument()
     })
 
-    it('should have an input with placeholder "Nuevo item"', async () => {
+    it('debería tener los controles de entrada (input y botón)', async () => {
       render(<App />)
       await waitFor(() => {
         expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
       })
-      const input = screen.getByPlaceholderText('Nuevo item')
-      expect(input).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Nuevo item')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Agregar/i })).toBeInTheDocument()
     })
 
-    it('should have a button with text "Agregar"', async () => {
+    it('debería mostrar el conteo correcto de items al cargar', async () => {
       render(<App />)
       await waitFor(() => {
-        expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
-      })
-      const button = screen.getByRole('button', { name: /Agregar/i })
-      expect(button).toBeInTheDocument()
-    })
-
-    it('should allow typing in the input field', async () => {
-      render(<App />)
-      await waitFor(() => {
-        expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
-      })
-      const input = screen.getByPlaceholderText('Nuevo item')
-      await userEvent.type(input, 'Test Item')
-      expect(input).toHaveValue('Test Item')
-    })
-
-    it('should show error for empty input', async () => {
-      render(<App />)
-      await waitFor(() => {
-        expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
-      })
-      const button = screen.getByRole('button', { name: /Agregar/i })
-      await userEvent.click(button)
-      await waitFor(() => {
-        const errorElement = screen.getByText(/nombre/i)
-        expect(errorElement).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('Search and Sort', () => {
-    it('should filter items based on search query', async () => {
-      render(<App />)
-      await waitFor(() => {
-        expect(screen.getByText('Apple')).toBeInTheDocument()
-      })
-      const searchInput = screen.getByPlaceholderText('🔍 Buscar...')
-      fireEvent.change(searchInput, { target: { value: 'Ban' } })
-      expect(screen.getByText('Banana')).toBeInTheDocument()
-      expect(screen.queryByText('Apple')).not.toBeInTheDocument()
-      expect(screen.queryByText('Cherry')).not.toBeInTheDocument()
-    })
-
-    it('should sort items alphabetically', async () => {
-      render(<App />)
-      await waitFor(() => {
-        expect(screen.getByText('Apple')).toBeInTheDocument()
-      })
-
-      // Default is newest first (id descending: 3, 2, 1) -> Cherry, Banana, Apple
-      let items = screen.getAllByRole('listitem')
-      expect(items[0]).toHaveTextContent('Cherry')
-      expect(items[1]).toHaveTextContent('Banana')
-      expect(items[2]).toHaveTextContent('Apple')
-
-      // Change sort to A-Z
-      const sortSelect = screen.getByRole('combobox')
-      fireEvent.change(sortSelect, { target: { value: 'alphabetical' } })
-
-      // Apple, Banana, Cherry
-      items = screen.getAllByRole('listitem')
-      expect(items[0]).toHaveTextContent('Apple')
-      expect(items[1]).toHaveTextContent('Banana')
-      expect(items[2]).toHaveTextContent('Cherry')
-    })
-  })
-
-  describe('Additional Features', () => {
-    it('should display the correct item count', async () => {
-      render(<App />)
-      await waitFor(() => {
-        // mockItems has 3 items
+        // mockItems tiene 3 items
         expect(screen.getByText('3 items')).toBeInTheDocument()
       })
     })
 
-    it('should prevent adding duplicate items', async () => {
-      render(<App />)
-      await waitFor(() => {
-        expect(screen.getByText('Apple')).toBeInTheDocument()
-      })
-      const input = screen.getByPlaceholderText('Nuevo item')
-      const button = screen.getByText('Agregar')
-      fireEvent.change(input, { target: { value: 'apple' } })
-      fireEvent.click(button)
-      expect(await screen.findByText('El item ya existe')).toBeInTheDocument()
-      // fetch called once for initial load
-      expect(fetch).toHaveBeenCalledTimes(1)
-    })
-
-    it('should show character count', async () => {
-      render(<App />)
-      const input = screen.getByPlaceholderText('Nuevo item')
-      fireEvent.change(input, { target: { value: 'Hello' } })
-      expect(screen.getByText('5/100')).toBeInTheDocument()
-    })
-  })
-
-  describe('Clear All', () => {
-    it('should show "Eliminar todo" button when items exist', async () => {
+    it('debería mostrar el botón "Eliminar todo" cuando existen items', async () => {
       render(<App />)
       await waitFor(() => {
         expect(screen.getByText('Eliminar todo')).toBeInTheDocument()
       })
     })
+  })
 
-    it('should clear all items when confirmed', async () => {
+  describe('Interacción del Formulario y Validaciones', () => {
+    it('debería permitir escribir y actualizar el conteo de caracteres', async () => {
+      render(<App />)
+      await waitFor(() => {
+        expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
+      })
+      const input = screen.getByPlaceholderText('Nuevo item')
+      
+      // Escribimos "Hola" (4 caracteres)
+      await userEvent.type(input, 'Hola')
+      
+      expect(input).toHaveValue('Hola')
+      expect(screen.getByText('4/100')).toBeInTheDocument()
+    })
+
+    it('debería mostrar un error al intentar agregar un input vacío', async () => {
+      render(<App />)
+      await waitFor(() => {
+        expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument()
+      })
+      const button = screen.getByRole('button', { name: /Agregar/i })
+      
+      await userEvent.click(button)
+      
+      await waitFor(() => {
+        const errorElement = screen.getByText(/nombre/i)
+        expect(errorElement).toBeInTheDocument()
+      })
+    })
+
+    it('debería prevenir agregar items duplicados', async () => {
+      render(<App />)
+      await waitFor(() => {
+        expect(screen.getByText('Manzana')).toBeInTheDocument()
+      })
+      const input = screen.getByPlaceholderText('Nuevo item')
+      const button = screen.getByText('Agregar')
+      
+      // Intentamos agregar 'manzana' que ya existe
+      fireEvent.change(input, { target: { value: 'manzana' } })
+      fireEvent.click(button)
+      
+      expect(await screen.findByText('El item ya existe')).toBeInTheDocument()
+      // Verificamos que no se hizo una nueva llamada a la API
+      expect(fetch).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('Filtrado y Ordenamiento de Listas', () => {
+    it('debería filtrar items basado en la consulta de búsqueda', async () => {
+      render(<App />)
+      await waitFor(() => {
+        expect(screen.getByText('Manzana')).toBeInTheDocument()
+      })
+      const searchInput = screen.getByPlaceholderText('🔍 Buscar...')
+      
+      fireEvent.change(searchInput, { target: { value: 'Ban' } })
+      
+      expect(screen.getByText('Banana')).toBeInTheDocument()
+      expect(screen.queryByText('Manzana')).not.toBeInTheDocument()
+      expect(screen.queryByText('Naranja')).not.toBeInTheDocument()
+    })
+
+    it('debería ordenar los items alfabéticamente correctamente', async () => {
+      render(<App />)
+      await waitFor(() => {
+        expect(screen.getByText('Manzana')).toBeInTheDocument()
+      })
+
+      let items = screen.getAllByRole('listitem')
+      expect(items[0]).toHaveTextContent('Naranja')
+      expect(items[1]).toHaveTextContent('Banana')
+      expect(items[2]).toHaveTextContent('Manzana')
+
+      // Cambiar orden a A-Z
+      const sortSelect = screen.getByRole('combobox')
+      fireEvent.change(sortSelect, { target: { value: 'alphabetical' } })
+
+      // Orden alfabético: Banana, Manzana, Naranja
+      items = screen.getAllByRole('listitem')
+      expect(items[0]).toHaveTextContent('Banana')
+      expect(items[1]).toHaveTextContent('Manzana')
+      expect(items[2]).toHaveTextContent('Naranja')
+    })
+  })
+
+  describe('Eliminación', () => {
+    it('debería borrar todos los items cuando se confirma', async () => {
       confirm.mockReturnValue(true)
 
-      // Override fetch for this specific test sequence
       fetch.mockImplementationOnce((url, options) => {
-        // Initial load
         return Promise.resolve({
           ok: true,
           json: async () => mockItems
         })
       })
         .mockImplementationOnce((url, options) => {
-          // DELETE request
           if (url === '/api/items' && options.method === 'DELETE') {
             return Promise.resolve({ ok: true })
           }
           return Promise.reject('Unknown request')
         })
         .mockImplementationOnce((url, options) => {
-          // Reload after delete
           return Promise.resolve({
             ok: true,
             json: async () => []
@@ -192,13 +181,15 @@ describe('App Component', () => {
       })
     })
 
-    it('should not clear items if cancelled', async () => {
+    it('no debería borrar items si se cancela la confirmación', async () => {
       confirm.mockReturnValue(false)
       render(<App />)
       await waitFor(() => {
         expect(screen.getByText('Eliminar todo')).toBeInTheDocument()
       })
+      
       fireEvent.click(screen.getByText('Eliminar todo'))
+      
       expect(confirm).toHaveBeenCalled()
       expect(fetch).not.toHaveBeenCalledWith('/api/items', { method: 'DELETE' })
     })

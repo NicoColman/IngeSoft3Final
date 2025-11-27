@@ -1,17 +1,14 @@
 Feature('App');
 
-
-Scenario('Add and remove item', async ({ I }) => {
-  const itemName = 'Test Item ' + Date.now();
-
+Scenario('Agregar y eliminar item', async ({ I }) => {
+  const itemName = 'Item de prueba ' + Date.now();
 
   I.amOnPage('/');
 
   I.wait(2);
   I.waitForText('Items', 30);
 
-
-  // Add item
+  // Agregar item
   I.fillField('Nuevo item', itemName);
 
   I.wait(1);
@@ -19,30 +16,29 @@ Scenario('Add and remove item', async ({ I }) => {
 
   I.wait(3);
 
-
-  // Verify item exists
+  // Verificar que el item existe
   I.waitForText(itemName, 30);
 
-
-  // Delete item
+  // Eliminar item
   I.wait(2);
   I.click('Eliminar', locate('li').withText(itemName));
 
-  // Verify item is gone
+  // Verificar que el item desapareció
   I.wait(3);
   I.dontSee(itemName);
 });
 
-Scenario('Search and Sort items', async ({ I }) => {
+Scenario('Buscar y Ordenar items', async ({ I }) => {
   const uniqueId = Date.now();
-  const itemA = 'Apple ' + uniqueId;
+
+  const itemA = 'Manzana ' + uniqueId;
   const itemB = 'Banana ' + uniqueId;
-  const itemC = 'Cherry ' + uniqueId;
+  const itemC = 'Naranja ' + uniqueId;
 
   I.amOnPage('/');
   I.waitForText('Items', 30);
 
-  // Add items
+  // Agregar items
   I.fillField('Nuevo item', itemA);
   I.click('Agregar');
   I.waitForText(itemA, 30);
@@ -55,50 +51,50 @@ Scenario('Search and Sort items', async ({ I }) => {
   I.click('Agregar');
   I.waitForText(itemC, 30);
 
-  // Test Search
-  I.fillField('🔍 Buscar...', 'Apple');
+  // Probar Búsqueda
+  I.fillField('Buscar...', 'Manzana');
   I.wait(1);
   I.waitForText(itemA, 10);
   I.dontSee(itemB);
   I.dontSee(itemC);
 
-  // Clear search
-  I.fillField('🔍 Buscar...', '');
+  // Limpiar búsqueda
+  I.fillField('Buscar...', '');
   I.wait(1);
   I.waitForText(itemB, 10);
 
-  // Test Sort (A-Z)
-  I.selectOption('select', 'alphabetical');
+  // Probar Ordenamiento (A-Z)
+  I.selectOption('select', 'alphabetical'); 
   I.wait(1);
-  // We can't easily check order with simple I.see, but we can check they are all there
+  
+  // Verificamos que todos estén presentes
   I.waitForText(itemA, 10);
   I.waitForText(itemB, 10);
   I.waitForText(itemC, 10);
 });
 
-Scenario('Verify item counters', async ({ I }) => {
+Scenario('Verificar contadores de items', async ({ I }) => {
   I.amOnPage('/');
   I.waitForText('Items', 30);
 
-  // Check character counter
-  I.fillField('Nuevo item', 'Hello');
-  I.waitForText('5/100', 5);
+  // Verificar contador de caracteres
+  I.fillField('Nuevo item', 'Hola');
+  I.waitForText('4/100', 5);
 
-  // Check item counter
+  // Verificar contador de items
   const uniqueId = Date.now();
-  const item = 'Counter Item ' + uniqueId;
+  const item = 'Item Contador ' + uniqueId;
 
   I.fillField('Nuevo item', item);
   I.click('Agregar');
   I.waitForText(item, 30);
 
-  // Verify "X items" text exists (regex or partial match)
   I.waitForText('items', 10);
 });
 
-Scenario('Verify persistence', async ({ I }) => {
+Scenario('Verificar persistencia', async ({ I }) => {
   const uniqueId = Date.now();
-  const item = 'Persistent Item ' + uniqueId;
+  const item = 'Item Persistente ' + uniqueId;
 
   I.amOnPage('/');
   I.waitForText('Items', 30);
@@ -107,10 +103,9 @@ Scenario('Verify persistence', async ({ I }) => {
   I.click('Agregar');
   I.waitForText(item, 30);
 
-  // Reload page
+  // Recargar página
   I.refreshPage();
   I.waitForText('Items', 30);
 
-  // Item should still be there
   I.waitForText(item, 30);
 });

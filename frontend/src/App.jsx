@@ -25,7 +25,7 @@ function App() {
       setItems(data)
     } catch (e) {
       setError('No se pudo cargar la lista')
-      setItems([]) // Reset to empty array on error
+      setItems([]) 
     } finally {
       setLoading(false)
     }
@@ -38,7 +38,6 @@ function App() {
   async function addItem(e) {
     e.preventDefault()
 
-    // Validate input
     if (!name || typeof name !== 'string') {
       setError('Nombre inválido')
       return
@@ -60,7 +59,7 @@ function App() {
       return
     }
 
-    setError('') // Clear previous errors
+    setError('')
 
     try {
       const res = await fetch('/api/items', {
@@ -82,20 +81,18 @@ function App() {
 
 
   async function removeItem(id) {
-    // Validate id exists and is valid
     if (!id || (typeof id !== 'string' && typeof id !== 'number')) {
       setError('ID inválido')
       return
     }
 
-    // Check if item exists in list
     const itemExists = items.find(item => item.id === id)
     if (!itemExists) {
       setError('El item no existe')
       return
     }
 
-    setError('') // Clear previous errors
+    setError('')
 
     try {
       const res = await fetch(`/api/items/${id}`, { method: 'DELETE' })
@@ -239,7 +236,7 @@ function App() {
       {/* Search and Sort Controls */}
       <div style={{ display: 'flex', gap: 12, marginBottom: '24px' }}>
         <input
-          placeholder="🔍 Buscar..."
+          placeholder="Buscar..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{
@@ -260,7 +257,7 @@ function App() {
             borderRadius: '10px',
             fontSize: '14px',
             outline: 'none',
-            backgroundColor: 'white',
+            backgroundColor: 'black',
             cursor: 'pointer'
           }}
         >
