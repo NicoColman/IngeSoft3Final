@@ -1,25 +1,29 @@
 Feature('Aplicación');
 
-// Usamos este hook para limpiar SIEMPRE después de cada test
-// Asumimos que existe el botón "Eliminar todo" que vimos en los unit tests
 After(async ({ I }) => {
-  // Intentamos limpiar solo si hay items
-  // Nota: En CodeceptJS a veces se usa try/catch o lógica condicional 
-  // si el botón no existe cuando la lista está vacía.
-  // Aquí asumimos un flujo feliz donde borramos todo al final.
-  
-  I.say('Limpiando base de datos después del test...');
-  
-  // Verificamos si existe el botón antes de intentar clickearlo para evitar fallos si la lista está vacía
-  const numItems = await I.grabNumberOfVisibleElements('li');
-  if (numItems > 0) {
-      I.click('Eliminar todo');
-      try {
-        I.acceptPopup(); // Aceptamos la confirmación "window.confirm"
-      } catch (e) {
-        // Ignorar si no sale popup
-      }
-      I.wait(1); // Esperar a que se borren
+  const deleteBtnSelector = locate('button').withText('Eliminar todo');
+
+  // 1. Verificar si el botón es visible en la pantalla
+  const visibleButtons = await I.grabNumberOfVisibleElements(deleteBtnSelector);
+
+  if (visibleButtons > 0) {
+    // 2. Verificar el atributo 'disabled'
+    // Si el atributo NO existe (es null), el botón está habilitado.
+    // Si devuelve 'true', '' o 'disabled', entonces no podemos clickear.
+    const isDisabled = await I.grabAttributeFrom(deleteBtnSelector, 'disabled');
+
+    if (isDisabled === null || isDisabled === false) {
+        I.say('Limpiando base de datos...');
+        I.click(deleteBtnSelector);
+        try {
+          I.acceptPopup();
+        } catch (e) {
+          // Ignoramos si no aparece el popup
+        }
+        I.wait(1);
+    } else {
+        I.say('El botón "Eliminar todo" está deshabilitado, no es necesario limpiar.');
+    }
   }
 });
 
