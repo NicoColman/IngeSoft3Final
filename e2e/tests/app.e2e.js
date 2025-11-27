@@ -140,5 +140,5 @@ Scenario('Verificar validación de input vacío', async ({ I }) => {
 
   I.click('Agregar');
 
-  I.waitForText('El nombre no puede estar vacío', 10);
+  I.waitForText('Nombre inválido', 10);
 });

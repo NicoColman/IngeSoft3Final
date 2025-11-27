@@ -1,0 +1,297 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 6,
+    "passes": 0,
+    "pending": 0,
+    "failures": 6,
+    "start": "2025-11-27T21:07:02.160Z",
+    "end": "2025-11-27T21:09:07.293Z",
+    "duration": 125133,
+    "testsRegistered": 6,
+    "passPercent": 0,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "4b1278c0-b68c-4f4d-8d7a-53979eddd6a0",
+      "title": "",
+      "fullFile": "/home/nico/Documents/IngSoft3/nuevo/e2e/tests/app.e2e.js",
+      "file": "/tests/app.e2e.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+          "title": "App",
+          "fullFile": "/home/nico/Documents/IngSoft3/nuevo/e2e/tests/app.e2e.js",
+          "file": "/tests/app.e2e.js",
+          "beforeHooks": [
+            {
+              "title": "\"before all\" hook: codeceptjs.beforeSuite in \"App\"",
+              "fullTitle": "App \"before all\" hook: codeceptjs.beforeSuite in \"App\"",
+              "timedOut": false,
+              "duration": 61,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "suiteSetup(suite)",
+              "err": {},
+              "uuid": "bf491b75-8019-4cee-b5fa-a6dac09663f2",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": true,
+              "skipped": false
+            },
+            {
+              "title": "\"before each\" hook: codeceptjs.before in \"App\"",
+              "fullTitle": "App \"before each\" hook: codeceptjs.before in \"App\"",
+              "timedOut": false,
+              "duration": 26,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "setup(suite)",
+              "err": {},
+              "uuid": "597df390-718c-45f9-ba87-fb5d8a9b1d1f",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": true,
+              "skipped": false
+            }
+          ],
+          "afterHooks": [
+            {
+              "title": "\"after all\" hook: codeceptjs.afterSuite in \"App\"",
+              "fullTitle": "App \"after all\" hook: codeceptjs.afterSuite in \"App\"",
+              "timedOut": false,
+              "duration": 0,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "suiteTeardown(suite)",
+              "err": {},
+              "uuid": "d9a592a3-6cea-4897-888f-49deb1478717",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": true,
+              "skipped": false
+            },
+            {
+              "title": "\"after each\" hook: finalize codeceptjs in \"App\"",
+              "fullTitle": "App \"after each\" hook: finalize codeceptjs in \"App\"",
+              "timedOut": false,
+              "duration": 2,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "teardown(suite)",
+              "err": {},
+              "uuid": "4fd3dcbf-3ac7-4b26-920c-e3bca8dfa463",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": true,
+              "skipped": false
+            }
+          ],
+          "tests": [
+            {
+              "title": "Agregar y eliminar item",
+              "fullTitle": "App: Agregar y eliminar item",
+              "timedOut": false,
+              "duration": 36821,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "I }) => {\n  const itemName = 'Item de prueba ' + Date.now();\n  I.amOnPage('/');\n  I.wait(2);\n  I.waitForText('Items', 30);\n  I.fillField('Nuevo item', itemName);\n  I.wait(1);\n  I.click('Agregar');\n  I.wait(3);\n  I.waitForText(itemName, 30);\n  I.wait(2);\n  I.click('Eliminar', locate('li').withText(itemName));\n  I.waitForInvisible(locate('li').withText(itemName), 10);",
+              "err": {
+                "message": "Error: Text \"Item de prueba 1764277622364\" was not found on page after 30 sec.",
+                "estack": "Error: Text \"Item de prueba 1764277622364\" was not found on page after 30 sec.\n    at /home/nico/Documents/IngSoft3/nuevo/e2e/node_modules/codeceptjs/lib/helper/Playwright.js:3052:13",
+                "diff": null
+              },
+              "uuid": "decbdf74-8ca8-4351-a5f7-e427b181bff6",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "Buscar y Ordenar items",
+              "fullTitle": "App: Buscar y Ordenar items",
+              "timedOut": false,
+              "duration": 10695,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "I }) => {\n  const uniqueId = Date.now();\n  const itemA = 'Manzana ' + uniqueId;\n  const itemB = 'Banana ' + uniqueId;\n  const itemC = 'Naranja ' + uniqueId;\n  I.amOnPage('/');\n  I.waitForText('Items', 30);\n  I.fillField('Nuevo item', itemA);\n  I.click('Agregar');\n  I.waitForText(itemA, 10);\n  I.fillField('Nuevo item', itemB);\n  I.click('Agregar');\n  I.waitForText(itemB, 10);\n  I.fillField('Nuevo item', itemC);\n  I.click('Agregar');\n  I.waitForText(itemC, 10);\n  I.fillField('Buscar...', 'Manzana');\n  I.wait(1);\n  I.waitForText(itemA, 10);\n  I.dontSee(itemB);\n  I.dontSee(itemC);\n  I.fillField('Buscar...', '');\n  I.wait(1);\n  I.waitForText(itemB, 10);\n  I.selectOption('select', 'alphabetical');\n  I.wait(1);\n  I.waitForText(itemA, 10);\n  I.waitForText(itemB, 10);\n  I.waitForText(itemC, 10);\n  I.click('Eliminar', locate('li').withText(itemA));\n  I.waitForInvisible(locate('li').withText(itemA), 5);\n  I.click('Eliminar', locate('li').withText(itemB));\n  I.waitForInvisible(locate('li').withText(itemB), 5);\n  I.click('Eliminar', locate('li').withText(itemC));\n  I.waitForInvisible(locate('li').withText(itemC), 5);",
+              "err": {
+                "message": "Error: Text \"Manzana 1764277659215\" was not found on page after 10 sec.",
+                "estack": "Error: Text \"Manzana 1764277659215\" was not found on page after 10 sec.\n    at /home/nico/Documents/IngSoft3/nuevo/e2e/node_modules/codeceptjs/lib/helper/Playwright.js:3052:13",
+                "diff": null
+              },
+              "uuid": "26415f07-665f-44cf-95e7-c901bd821c6e",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "Verificar contadores de items",
+              "fullTitle": "App: Verificar contadores de items",
+              "timedOut": false,
+              "duration": 5367,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "I }) => {\n  I.amOnPage('/');\n  I.waitForText('Items', 30);\n  I.fillField('Nuevo item', 'Hola');\n  I.waitForText('4/100', 5);\n  const uniqueId = Date.now();\n  const item = 'Item Contador ' + uniqueId;\n  I.fillField('Nuevo item', item);\n  I.click('Agregar');\n  I.waitForText(item, 30);\n  I.waitForText('items', 10);\n  I.wait(1);\n  I.click('Eliminar', locate('li').withText(item));\n  I.waitForInvisible(locate('li').withText(item), 10);",
+              "err": {
+                "message": "Error: Text \"4/100\" was not found on page after 5 sec.",
+                "estack": "Error: Text \"4/100\" was not found on page after 5 sec.\n    at /home/nico/Documents/IngSoft3/nuevo/e2e/node_modules/codeceptjs/lib/helper/Playwright.js:3052:13",
+                "diff": null
+              },
+              "uuid": "cfc3ef86-9f83-47a7-a006-118982597037",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "Verificar persistencia",
+              "fullTitle": "App: Verificar persistencia",
+              "timedOut": false,
+              "duration": 30803,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "I }) => {\n  const uniqueId = Date.now();\n  const item = 'Item Persistente ' + uniqueId;\n  I.amOnPage('/');\n  I.waitForText('Items', 30);\n  I.fillField('Nuevo item', item);\n  I.click('Agregar');\n  I.waitForText(item, 30);\n  I.refreshPage();\n  I.waitForText('Items', 30);\n  I.waitForText(item, 30);\n  I.wait(1);\n  I.click('Eliminar', locate('li').withText(item));\n  I.waitForInvisible(locate('li').withText(item), 10);",
+              "err": {
+                "message": "Error: Text \"Item Persistente 1764277675337\" was not found on page after 30 sec.",
+                "estack": "Error: Text \"Item Persistente 1764277675337\" was not found on page after 30 sec.\n    at /home/nico/Documents/IngSoft3/nuevo/e2e/node_modules/codeceptjs/lib/helper/Playwright.js:3052:13",
+                "diff": null
+              },
+              "uuid": "74d5b631-1bcd-4dbf-9076-403850372c48",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "Verificar validación de duplicados",
+              "fullTitle": "App: Verificar validación de duplicados",
+              "timedOut": false,
+              "duration": 30770,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "I }) => {\n  const uniqueId = Date.now();\n  const item = 'Item Duplicado ' + uniqueId;\n  I.amOnPage('/');\n  I.waitForText('Items', 30);\n  // Add first time\n  I.fillField('Nuevo item', item);\n  I.click('Agregar');\n  I.waitForText(item, 30);\n  // Add second time\n  I.fillField('Nuevo item', item);\n  I.click('Agregar');\n  I.waitForText('El item ya existe', 10);\n  // Cleanup\n  I.refreshPage();\n  I.wait(1);\n  I.click('Eliminar', locate('li').withText(item));\n  I.waitForInvisible(locate('li').withText(item), 10);",
+              "err": {
+                "message": "Error: Text \"Item Duplicado 1764277706170\" was not found on page after 30 sec.",
+                "estack": "Error: Text \"Item Duplicado 1764277706170\" was not found on page after 30 sec.\n    at /home/nico/Documents/IngSoft3/nuevo/e2e/node_modules/codeceptjs/lib/helper/Playwright.js:3052:13",
+                "diff": null
+              },
+              "uuid": "eb44902b-e399-4e62-9294-832fdbb3acad",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "Verificar validación de input vacío",
+              "fullTitle": "App: Verificar validación de input vacío",
+              "timedOut": false,
+              "duration": 10321,
+              "state": "failed",
+              "speed": null,
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "context": null,
+              "code": "I }) => {\n  I.amOnPage('/');\n  I.waitForText('Items', 30);\n  I.click('Agregar');\n  I.waitForText('El nombre no puede estar vacío', 10);",
+              "err": {
+                "message": "Error: Text \"El nombre no puede estar vacío\" was not found on page after 10 sec.",
+                "estack": "Error: Text \"El nombre no puede estar vacío\" was not found on page after 10 sec.\n    at /home/nico/Documents/IngSoft3/nuevo/e2e/node_modules/codeceptjs/lib/helper/Playwright.js:3052:13",
+                "diff": null
+              },
+              "uuid": "bb3446d5-93ed-45ab-a84a-bf1a050aca6c",
+              "parentUUID": "feb0743c-1996-4d6c-a585-b7b650cedc6c",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [],
+          "passes": [],
+          "failures": [
+            "decbdf74-8ca8-4351-a5f7-e427b181bff6",
+            "26415f07-665f-44cf-95e7-c901bd821c6e",
+            "cfc3ef86-9f83-47a7-a006-118982597037",
+            "74d5b631-1bcd-4dbf-9076-403850372c48",
+            "eb44902b-e399-4e62-9294-832fdbb3acad",
+            "bb3446d5-93ed-45ab-a84a-bf1a050aca6c"
+          ],
+          "pending": [],
+          "skipped": [],
+          "duration": 124777,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 0
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 0
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "11.7.2"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "report",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.4"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "./output",
+        "reportFilename": "report",
+        "reportTitle": "E2E Test Report"
+      },
+      "version": "6.3.2"
+    }
+  }
+}
