@@ -114,7 +114,7 @@ describe('Componente App', () => {
       await waitFor(() => {
         expect(screen.getByText('Manzana')).toBeInTheDocument()
       })
-      const searchInput = screen.getByPlaceholderText('🔍 Buscar...')
+      const searchInput = screen.getByPlaceholderText('Buscar...')
       
       fireEvent.change(searchInput, { target: { value: 'Ban' } })
       
