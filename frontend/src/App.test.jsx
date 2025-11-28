@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import App from './App'
@@ -192,6 +192,149 @@ describe('Componente App', () => {
       
       expect(confirm).toHaveBeenCalled()
       expect(fetch).not.toHaveBeenCalledWith('/api/items', { method: 'DELETE' })
+    })
+  })
+  describe('Gestión de Errores de API', () => {
+    it('debería mostrar error si falla la carga inicial de items', async () => {
+      // Sobreescribimos el mock para que falle la primera llamada (GET)
+      fetch.mockImplementationOnce(() => 
+        Promise.reject(new Error('Network error'))
+      )
+
+      render(<App />)
+
+      await waitFor(() => {
+        expect(screen.getByText('No se pudo cargar la lista')).toBeInTheDocument()
+      })
+      expect(screen.queryByText('Manzana')).not.toBeInTheDocument()
+    })
+
+    it('debería mostrar error si falla la creación de un item', async () => {
+      render(<App />)
+      await waitFor(() => expect(screen.getByText('Manzana')).toBeInTheDocument())
+
+      fetch.mockImplementation((url, options) => {
+        if (options && options.method === 'POST') {
+          return Promise.resolve({ ok: false })
+        }
+        return Promise.resolve({ ok: true, json: async () => mockItems })
+      })
+
+      const input = screen.getByPlaceholderText('Nuevo item')
+      await userEvent.type(input, 'Pera')
+      fireEvent.click(screen.getByRole('button', { name: /Agregar/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText('No se pudo agregar el item')).toBeInTheDocument()
+      })
+      expect(input).toHaveValue('Pera')
+    })
+
+    it('debería mostrar error si falla la eliminación de un item', async () => {
+      render(<App />)
+      await waitFor(() => expect(screen.getByText('Manzana')).toBeInTheDocument())
+
+      fetch.mockImplementation((url, options) => {
+        if (options && options.method === 'DELETE') {
+          return Promise.resolve({ ok: false })
+        }
+        return Promise.resolve({ ok: true, json: async () => mockItems })
+      })
+
+      const deleteBtns = screen.getAllByText('Eliminar')
+      fireEvent.click(deleteBtns[0]) // Intentar eliminar el primero
+
+      await waitFor(() => {
+        expect(screen.getByText('No se pudo eliminar el item')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Flujos Exitosos (Happy Paths)', () => {
+    it('debería agregar un item correctamente y actualizar la lista', async () => {
+      // Secuencia de mocks: 
+      // 1. Carga inicial
+      // 2. POST (agregar)
+      // 3. Recarga (GET) con el nuevo item
+      fetch
+        .mockResolvedValueOnce({ ok: true, json: async () => mockItems }) // Carga inicial
+        .mockResolvedValueOnce({ ok: true }) // POST response
+        .mockResolvedValueOnce({ 
+          ok: true, 
+          json: async () => [...mockItems, { id: 4, name: 'Uva' }] 
+        })
+
+      render(<App />)
+      await waitFor(() => expect(screen.getByText('Manzana')).toBeInTheDocument())
+
+      const input = screen.getByPlaceholderText('Nuevo item')
+      await userEvent.type(input, 'Uva')
+      
+      const addBtn = screen.getByRole('button', { name: /Agregar/i })
+      fireEvent.click(addBtn)
+
+      await waitFor(() => {
+        expect(fetch).toHaveBeenCalledWith('/api/items', expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ name: 'Uva' })
+        }))
+      })
+
+      expect(input).toHaveValue('')
+      
+      await waitFor(() => {
+        expect(screen.getByText('Uva')).toBeInTheDocument()
+        expect(screen.getByText('4 items')).toBeInTheDocument()
+      })
+    })
+
+    it('debería eliminar un item correctamente y actualizar la lista', async () => {
+      const itemsAfterDelete = mockItems.filter(i => i.id !== 1) 
+
+      fetch
+        .mockResolvedValueOnce({ ok: true, json: async () => mockItems })
+        .mockResolvedValueOnce({ ok: true }) // DELETE ok
+        .mockResolvedValueOnce({ ok: true, json: async () => itemsAfterDelete })
+
+      render(<App />)
+      await waitFor(() => expect(screen.getByText('Manzana')).toBeInTheDocument())
+
+      
+      const items = screen.getAllByRole('listitem')
+      const appleItem = items.find(item => item.textContent.includes('Manzana'))
+      const deleteBtn = within(appleItem).getByText('Eliminar')
+
+      fireEvent.click(deleteBtn)
+
+      await waitFor(() => {
+        expect(fetch).toHaveBeenCalledWith('/api/items/1', { method: 'DELETE' })
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByText('Manzana')).not.toBeInTheDocument()
+        expect(screen.getByText('2 items')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('Validaciones de Borde', () => {
+    it('debería mostrar error si el nombre excede los 100 caracteres', async () => {
+      render(<App />)
+      await waitFor(() => expect(screen.queryByText(/Cargando/i)).not.toBeInTheDocument())
+
+      const input = screen.getByPlaceholderText('Nuevo item')
+      const longText = 'a'.repeat(101)
+      
+      // Usamos fireEvent directo para ser más rápidos que userEvent con strings largos
+      fireEvent.change(input, { target: { value: longText } })
+      
+      fireEvent.click(screen.getByRole('button', { name: /Agregar/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText(/El nombre es demasiado largo/i)).toBeInTheDocument()
+      })
+      
+      expect(fetch).toHaveBeenCalledTimes(1)
     })
   })
 })
