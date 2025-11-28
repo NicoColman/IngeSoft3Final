@@ -1,7 +1,6 @@
 const request = require('supertest');
 const { app, getPool, query } = require('../src/server');
 
-// Use test database
 process.env.DB_HOST = process.env.DB_HOST || 'localhost';
 process.env.DB_PORT = process.env.DB_PORT || 5432;
 process.env.DB_NAME = process.env.DB_NAME || 'ingsoft3_test';
@@ -9,8 +8,6 @@ process.env.DB_USER = process.env.DB_USER || 'postgres';
 process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'postgres';
 
 beforeAll(async () => {
-  // Clean test table
-  const pool = getPool();
   try {
     await query('DROP TABLE IF EXISTS items');
     await query(`
@@ -25,7 +22,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // Clean up
   const pool = getPool();
   try {
     await query('DROP TABLE IF EXISTS items');
@@ -36,17 +32,16 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean table before each test
   await query('DELETE FROM items');
 });
 
-test('health check', async () => {
+test('verificación de estado', async () => {
   const res = await request(app).get('/api/health');
   expect(res.status).toBe(200);
   expect(res.body.status).toBe('ok');
 }, 10000);
 
-test('CRUD items', async () => {
+test('operaciones CRUD de items', async () => {
   const create = await request(app).post('/api/items').send({ name: 'First' });
   expect(create.status).toBe(201);
   expect(create.body.name).toBe('First');
@@ -65,22 +60,46 @@ test('CRUD items', async () => {
   expect(listAfter.body.length).toBe(0);
 }, 10000);
 
-test('Clear all items', async () => {
-  // Create two items
+test('eliminar todos los items', async () => {
   await request(app).post('/api/items').send({ name: 'Item 1' });
   await request(app).post('/api/items').send({ name: 'Item 2' });
 
-  // Verify they exist
   const listBefore = await request(app).get('/api/items');
   expect(listBefore.body.length).toBe(2);
 
-  // Clear all
   const clear = await request(app).delete('/api/items');
   expect(clear.status).toBe(204);
 
-  // Verify empty
   const listAfter = await request(app).get('/api/items');
   expect(listAfter.body.length).toBe(0);
 }, 10000);
 
 
+test('debería retornar 400 si falta el nombre', async () => {
+  const res = await request(app).post('/api/items').send({});
+  expect(res.status).toBe(400);
+});
+
+
+describe('Manejo de Errores y Casos Borde', () => {
+  test('debería retornar 404 al eliminar un item inexistente', async () => {
+    const res = await request(app).delete('/api/items/9999');
+    expect(res.status).toBe(404); 
+  });
+
+  test('debería retornar 400 al eliminar con formato de ID inválido', async () => {
+    const res = await request(app).delete('/api/items/abc');
+    expect(res.status).toBe(400);
+  });
+
+  test('debería sanitizar la entrada (verificación de Inyección SQL)', async () => {
+    const maliciousName = "'; DROP TABLE items; --";
+    
+    const create = await request(app).post('/api/items').send({ name: maliciousName });
+    expect(create.status).toBe(201); 
+    
+    const list = await request(app).get('/api/items');
+    expect(list.status).toBe(200);
+    expect(list.body[0].name).toBe(maliciousName); 
+  });
+});

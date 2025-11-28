@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.4">
-  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2025-11-28T12:40:58" time="0.36" tests="3">
-    <testcase classname=" health check" name=" health check" time="0.014">
+<testsuites name="jest tests" tests="7" failures="0" errors="0" time="0.599">
+  <testsuite name="undefined" errors="0" failures="0" skipped="0" timestamp="2025-11-28T14:29:59" time="0.546" tests="7">
+    <testcase classname=" verificación de estado" name=" verificación de estado" time="0.018">
     </testcase>
-    <testcase classname=" CRUD items" name=" CRUD items" time="0.027">
+    <testcase classname=" operaciones CRUD de items" name=" operaciones CRUD de items" time="0.021">
     </testcase>
-    <testcase classname=" Clear all items" name=" Clear all items" time="0.014">
+    <testcase classname=" eliminar todos los items" name=" eliminar todos los items" time="0.015">
+    </testcase>
+    <testcase classname=" debería retornar 400 si falta el nombre" name=" debería retornar 400 si falta el nombre" time="0.002">
+    </testcase>
+    <testcase classname="Manejo de Errores y Casos Borde debería retornar 404 al eliminar un item inexistente" name="Manejo de Errores y Casos Borde debería retornar 404 al eliminar un item inexistente" time="0.002">
+    </testcase>
+    <testcase classname="Manejo de Errores y Casos Borde debería retornar 400 al eliminar con formato de ID inválido" name="Manejo de Errores y Casos Borde debería retornar 400 al eliminar con formato de ID inválido" time="0.002">
+    </testcase>
+    <testcase classname="Manejo de Errores y Casos Borde debería sanitizar la entrada (verificación de Inyección SQL)" name="Manejo de Errores y Casos Borde debería sanitizar la entrada (verificación de Inyección SQL)" time="0.005">
     </testcase>
   </testsuite>
 </testsuites>
