@@ -55,10 +55,7 @@ async function initDb() {
   }
 }
 
-initDb().catch(err => {
-  console.error('Failed to initialize database:', err);
-  process.exit(1);
-});
+
 
 app.get('/api/health', async (_req, res) => {
   try {
@@ -113,9 +110,14 @@ app.delete('/api/items/:id', async (req, res) => {
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Backend listening on port ${PORT}`);
+  initDb().then(() => {
+    app.listen(PORT, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Backend listening on port ${PORT}`);
+    });
+  }).catch(err => {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
   });
 }
 
