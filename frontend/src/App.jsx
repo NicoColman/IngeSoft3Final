@@ -155,7 +155,7 @@ function App() {
           fontSize: '32px',
           fontWeight: '700',
           letterSpacing: '-0.5px'
-        }}>Items1</h1>
+        }}>Item</h1>
         <span style={{
           backgroundColor: 'rgba(255, 255, 255, 0.2)',
           color: 'white',
