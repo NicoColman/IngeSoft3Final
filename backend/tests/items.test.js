@@ -80,26 +80,23 @@ test('debería retornar 400 si falta el nombre', async () => {
   expect(res.status).toBe(400);
 });
 
+test('debería retornar 404 al eliminar un item inexistente', async () => {
+  const res = await request(app).delete('/api/items/9999');
+  expect(res.status).toBe(404); 
+});
 
-describe('Manejo de Errores y Casos Borde', () => {
-  test('debería retornar 404 al eliminar un item inexistente', async () => {
-    const res = await request(app).delete('/api/items/9999');
-    expect(res.status).toBe(404); 
-  });
+test('debería retornar 400 al eliminar con formato de ID inválido', async () => {
+  const res = await request(app).delete('/api/items/abc');
+  expect(res.status).toBe(400);
+});
 
-  test('debería retornar 400 al eliminar con formato de ID inválido', async () => {
-    const res = await request(app).delete('/api/items/abc');
-    expect(res.status).toBe(400);
-  });
-
-  test('debería sanitizar la entrada (verificación de Inyección SQL)', async () => {
-    const maliciousName = "'; DROP TABLE items; --";
-    
-    const create = await request(app).post('/api/items').send({ name: maliciousName });
-    expect(create.status).toBe(201); 
-    
-    const list = await request(app).get('/api/items');
-    expect(list.status).toBe(200);
-    expect(list.body[0].name).toBe(maliciousName); 
-  });
+test('debería sanitizar la entrada (verificación de Inyección SQL)', async () => {
+  const maliciousName = "'; DROP TABLE items; --";
+  
+  const create = await request(app).post('/api/items').send({ name: maliciousName });
+  expect(create.status).toBe(201); 
+  
+  const list = await request(app).get('/api/items');
+  expect(list.status).toBe(200);
+  expect(list.body[0].name).toBe(maliciousName); 
 });
